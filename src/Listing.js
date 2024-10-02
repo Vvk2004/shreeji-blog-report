@@ -49,7 +49,7 @@ const Listing = () => {
                     sx={{
                         color: "#fff",
                         zIndex: (theme) => theme.zIndex.drawer + 1,
-                        backdropFilter: "blur(10px)", // Apply blur effect to the background
+                        backdropFilter: "blur(10px)",
                     }}
                 >
                     <CircularProgress color="inherit" />

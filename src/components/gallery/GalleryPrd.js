@@ -1,47 +1,49 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Container, Grid, Typography } from "@mui/material";
-import line from "./assets/images/global/line.png";
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from "react";
+import line from "../../assets/images/gallery/line.png";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const Listing = () => {
+const GalleryPrd = () => {
 
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
+    const [error, setError] = useState(null);
 
-    const getAllBlog = () => {
-        setLoading(true)
-        axios.get("https://shreeji-be.onrender.com/api/blog")
+    const getAllGallery = useCallback(() => {
+        setLoading(true);
+        axios.get("https://shreeji-be.onrender.com/api/gallery")
             .then((res) => {
-                setData(res.data.data)
-                setLoading(false)
+                setData(res.data.data);
+                setLoading(false);
             })
             .catch((err) => {
-                setLoading(false)
-                console.log(err)
-            })
-    }
+                setLoading(false);
+                setError("Failed to load products.");
+                console.log(err);
+            });
+    }, []);
 
     useEffect(() => {
-        getAllBlog();
-    }, [])
-    console.log(data);
+        getAllGallery();
+    }, [getAllGallery]);
 
     const handleDelete = (id) => {
-        setLoading(true)
-        axios.delete(`https://shreeji-be.onrender.com/api/blog/${id}`)
-            .then((res) => {
-                getAllBlog()
-                setLoading(false)
+        setLoading(true);
+        axios.delete(`https://shreeji-be.onrender.com/api/gallery/${id}`)
+            .then(() => {
+                getAllGallery();
             })
             .catch((err) => {
-                console.log(err)
-                setLoading(false)
+                console.log(err);
+                setError("Failed to delete product."); // Update error state
             })
-    }
+            .finally(() => setLoading(false)); // Ensure loading is false after the request completes
+    };
 
     return (
+
         <>
             {loading && (
                 <Backdrop
@@ -55,18 +57,20 @@ const Listing = () => {
                     <CircularProgress color="inherit" />
                 </Backdrop>
             )}
-            <Box sx={{ py: 5 }}>
+            {error && <Typography color="error">{error}</Typography>}
+            <Box sx={{ mt: { md: 15, sm: 10, xs: 5 } }}>
                 <Container>
                     <Box sx={{ position: 'relative' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', my: { md: 4, xs: 5 } }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: { md: 10, xs: 5 } }}>
                             <Typography sx={{ fontWeight: 600, fontSize: { lg: '40px', md: '34px', sm: '24px', xs: '28px' }, alignItems: 'center', justifyContent: 'center', display: 'flex' }}>
                                 <Typography component={'img'} src={line} sx={{ mr: 1 }}></Typography>
-                                Blog
+                                Gallery
                             </Typography>
                         </Box>
+
                         <Box sx={{ mb: 3, display: "flex", justifyContent: 'end' }}>
                             <Button
-                                onClick={() => navigate('/add-blog')}
+                                onClick={() => navigate('/add-gallery')}
                                 sx={{
                                     borderRadius: '0',
                                     color: '#fff',
@@ -79,35 +83,18 @@ const Listing = () => {
                                     fontWeight: 600,
                                 }}
                             >
-                                + Add Blog
+                                + Add Product
                             </Button>
                         </Box>
                         <Grid container spacing={5}>
-                            {data.map((blogPrd, index) => (
+                            {data.map((gallery, index) => (
                                 <Grid item md={4} sm={6} xs={12} key={index}>
                                     <Box sx={{ position: 'relative' }}>
-                                        <Typography component={'img'} src={blogPrd.thumbnail_image} sx={{ width: '100%', objectFit: 'cover', height: { sm: '300px', xs: '300px' } }}></Typography>
-                                        <Typography sx={{
-                                            position: 'absolute',
-                                            bottom: '10%',
-                                            width: '70%',
-                                            backgroundColor: '#fff',
-                                            boxShadow: 1,
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            color: '#555555',
-                                            fontWeight: 600,
-                                            py: 3,
-                                            px: 4,
-                                            fontSize: { sm: '16px', xs: '14px' },
-                                            left: { sm: '-6%', xs: '-3%' }
-                                        }}>
-                                            {blogPrd.heading}
-                                        </Typography>
+                                        <Typography component={'img'} src={gallery.image} sx={{ width: '100%', objectFit: 'cover', height: { sm: '300px', xs: '300px' } }}></Typography>
+
                                         <Box sx={{ position: 'absolute', top: { sm: '5%', xs: '4%' }, right: '-3%' }}>
                                             <Button
-                                                onClick={() => navigate(`/add-blog/${blogPrd?._id}`)}
+                                                onClick={() => navigate(`/add-gallery/${gallery._id}`)}
                                                 sx={{
                                                     borderRadius: '0',
                                                     color: '#fff',
@@ -124,7 +111,7 @@ const Listing = () => {
                                                 Edit
                                             </Button>
                                             <Button
-                                                onClick={() => handleDelete(blogPrd._id)}
+                                                onClick={() => handleDelete(gallery._id)}
                                                 sx={{
                                                     borderRadius: '0',
                                                     color: '#fff',
@@ -140,7 +127,6 @@ const Listing = () => {
                                                 }}
                                             >
                                                 Delete
-
                                             </Button>
                                         </Box>
                                     </Box>
@@ -151,7 +137,7 @@ const Listing = () => {
                 </Container>
             </Box>
         </>
-    )
+    );
 }
 
-export default Listing
+export default GalleryPrd

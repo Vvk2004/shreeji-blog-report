@@ -239,7 +239,6 @@ const Form = () => {
                                 </Box>
                             ))}
 
-                            {/* Add Sections Button */}
                             <Button
                                 variant="outlined"
                                 onClick={addSections}
